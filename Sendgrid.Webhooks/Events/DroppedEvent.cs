@@ -1,10 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿namespace Sendgrid.Webhooks.Events;
 
-namespace Sendgrid.Webhooks.Events
+public class DroppedEvent : DeliveryEventBase
 {
-    public class DroppedEvent : DeliveryEventBase
-    {
-        [JsonProperty("reason")]
-        public string Reason { get; set; }
-    }
+	[JsonPropertyName("reason")]
+	public string Reason { get; set; }
 }

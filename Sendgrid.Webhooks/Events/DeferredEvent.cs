@@ -1,13 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿namespace Sendgrid.Webhooks.Events;
 
-namespace Sendgrid.Webhooks.Events
+public class DeferredEvent : DeliveryEventBase
 {
-    public class DeferredEvent : DeliveryEventBase
-    {
-        [JsonProperty("response")]
-        public string Response { get; set; }
+	[JsonPropertyName("response")]
+	public string Response { get; set; }
 
-        [JsonProperty("attempt")]
-        public string Attempts { get; set; }
-    }
+	[JsonPropertyName("attempt")]
+	public string Attempts { get; set; }
 }

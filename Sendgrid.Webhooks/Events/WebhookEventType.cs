@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Sendgrid.Webhooks.Events
+﻿namespace Sendgrid.Webhooks.Events
 {
     public enum WebhookEventType
     {

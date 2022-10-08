@@ -1,7 +1,6 @@
-﻿namespace Sendgrid.Webhooks.Events
+﻿namespace Sendgrid.Webhooks.Events;
+
+public class DeliveryEvent : DeliveryEventBase
 {
-    public class DeliveryEvent : DeliveryEventBase
-    {
          
-    }
 }

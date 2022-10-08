@@ -1,10 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿namespace Sendgrid.Webhooks.Events;
 
-namespace Sendgrid.Webhooks.Events
+public class GroupResubscribeEvent : EngagementEventBase
 {
-    public class GroupResubscribeEvent : EngagementEventBase
-    {
-        [JsonProperty("asm_group_id")]
-        public int GroupId { get; set; }
-    }
+	[JsonPropertyName("asm_group_id")]
+	public int GroupId { get; set; }
 }

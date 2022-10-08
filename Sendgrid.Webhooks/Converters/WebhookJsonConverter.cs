@@ -1,74 +1,87 @@
-﻿using System;
+﻿using System.Collections.Immutable;
 using System.Linq;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json.Nodes;
 using Sendgrid.Webhooks.Events;
 
-namespace Sendgrid.Webhooks.Converters
+namespace Sendgrid.Webhooks.Converters;
+
+public class WebhookJsonConverter : JsonConverter<object>
 {
-    public class WebhookJsonConverter : JsonConverter
+    //these will be filtered out from the UniqueParams
+    private static readonly string[] KnownProperties = new string[] {"event", "email", "category", "timestamp", "ip", "useragent", "type", 
+                                                           "reason", "status", "url", "url_offset", "send_at", "tls", "cert_err" };
+
+    private static readonly IDictionary<string, Type> TypeMapping = new Dictionary<string, Type>()
     {
-        //these will be filtered out from the UniqueParams
-        private static readonly string[] KnownProperties = new string[] {"event", "email", "category", "timestamp", "ip", "useragent", "type", 
-                                                               "reason", "status", "url", "url_offset", "send_at", "tls", "cert_err" };
+        {"processed", typeof(ProcessedEvent)},
+        {"bounce", typeof(BounceEvent)},
+        {"click", typeof(ClickEvent)},
+        {"deferred", typeof(DeferredEvent)},
+        {"delivered", typeof(DeliveryEvent)},
+        {"dropped", typeof(DroppedEvent)},
+        {"open", typeof(OpenEvent)},
+        {"spamreport", typeof(SpamReportEvent)},
+        {"unsubscribe", typeof(UnsubscribeEvent)},
+        {"group_resubscribe", typeof(GroupResubscribeEvent)},
+        {"group_unsubscribe", typeof(GroupUnsubscribeEvent)}
+    };
+    
+    public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions serializer)
+    {
+        throw new NotImplementedException("The webhook JSON converter does not support write operations.");
+    }
 
-        private static readonly IDictionary<string, Type> TypeMapping = new Dictionary<string, Type>()
+    public override object Read(ref Utf8JsonReader reader, Type objectType, JsonSerializerOptions options)
+    {
+	    if (reader.TokenType != JsonTokenType.StartArray)
+		    throw new JsonException("Expected StartArray token");
+
+        List<WebhookEventBase> events = new();
+        JsonElement element = new JsonElement();
+        
+        while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
         {
-            {"processed", typeof(ProcessedEvent)},
-            {"bounce", typeof(BounceEvent)},
-            {"click", typeof(ClickEvent)},
-            {"deferred", typeof(DeferredEvent)},
-            {"delivered", typeof(DeliveryEvent)},
-            {"dropped", typeof(DroppedEvent)},
-            {"open", typeof(OpenEvent)},
-            {"spamreport", typeof(SpamReportEvent)},
-            {"unsubscribe", typeof(UnsubscribeEvent)},
-            {"group_resubscribe", typeof(GroupResubscribeEvent)},
-            {"group_unsubscribe", typeof(GroupUnsubscribeEvent)}
-        };
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotImplementedException("The webhook JSON converter does not support write operations.");
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
-            JsonSerializer serializer)
-        {
-            var jsonObject = JObject.Load(reader);
-
-            //serialise based on the event type
-            JToken eventName = null;
-            jsonObject.TryGetValue("event", StringComparison.CurrentCultureIgnoreCase, out eventName);
-
-            if (!TypeMapping.ContainsKey(eventName.ToString()))
-                throw new NotImplementedException(string.Format("Event {0} is not implemented yet.", eventName));
-
-            Type type = TypeMapping[eventName.ToString()];
-            WebhookEventBase webhookItem = (WebhookEventBase)jsonObject.ToObject(type, serializer);
-
-            AddUnmappedPropertiesAsUnique(webhookItem, jsonObject);
+	        var jsonObject = JsonDocument.ParseValue(ref reader);
             
-            return webhookItem;
+	        //serialise based on the event type
+	        jsonObject.RootElement.TryGetProperty("event", out var eventName); 
+
+	        if (!TypeMapping.ContainsKey(eventName.ToString()))
+		        throw new NotImplementedException(string.Format("Event {0} is not implemented yet.", eventName.ToString()));
+
+	        Type type = TypeMapping[eventName.ToString()];
+	        WebhookEventBase webhookItem = (WebhookEventBase) jsonObject.Deserialize(type, options);
+
+	        AddUnmappedPropertiesAsUnique(webhookItem, jsonObject);
+
+	        events.Add(webhookItem);
         }
+        return events;
+    }
 
-        public override bool CanConvert(Type objectType)
+    public override bool CanConvert(Type objectType)
+    {
+        return objectType == typeof (WebhookEventBase) || objectType == typeof (IList<WebhookEventBase>);
+    }
+
+    private void AddUnmappedPropertiesAsUnique(WebhookEventBase webhookEvent, JsonDocument jObject)
+    {
+        var dict = jObject.RootElement.EnumerateObject();
+
+        foreach (var o in dict)
         {
-            return objectType == typeof (WebhookEventBase);
-        }
+            if (KnownProperties.Contains(o.Name))
+                continue;
 
-        private void AddUnmappedPropertiesAsUnique(WebhookEventBase webhookEvent, JObject jObject)
-        {
-            var dict = jObject.ToObject<Dictionary<string, object>>();
-
-            foreach (var o in dict)
+            if (o.Value.ValueKind is not (JsonValueKind.Object or JsonValueKind.Number))
             {
-                if (KnownProperties.Contains(o.Key))
-                    continue;
-
-                webhookEvent.UniqueParameters.Add(o.Key, o.Value == null ? null : o.Value.ToString());
+                webhookEvent.UniqueParameters.Add(o.Name, o.Value.GetString());
+            }
+            else
+            {
+                webhookEvent.UniqueParameters.Add(o.Name, o.Value.GetRawText());
             }
         }
     }
 }
+

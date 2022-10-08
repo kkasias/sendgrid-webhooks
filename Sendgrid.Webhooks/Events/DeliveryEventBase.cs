@@ -1,22 +1,20 @@
-﻿using Newtonsoft.Json;
-using Sendgrid.Webhooks.Converters;
+﻿using Sendgrid.Webhooks.Converters;
 
-namespace Sendgrid.Webhooks.Events
+namespace Sendgrid.Webhooks.Events;
+
+public abstract class DeliveryEventBase : WebhookEventBase
 {
-    public abstract class DeliveryEventBase : WebhookEventBase
-    {
-        [JsonProperty("smtp-id")]
-        public string SmtpId { get; set; }
+	[JsonPropertyName("smtp-id")]
+	public string SmtpId { get; set; }
 
-        [JsonProperty("ip")]
-        public string Ip { get; set; }
+	[JsonPropertyName("ip")]
+	public string Ip { get; set; }
 
-        [JsonConverter(typeof(BooleanConverter))]
-        [JsonProperty("tls")]
-        public bool Tls { get; set; }
+	[JsonConverter(typeof(BooleanConverter))]
+	[JsonPropertyName("tls")]
+	public bool Tls { get; set; }
 
-        [JsonConverter(typeof(BooleanConverter))]
-        [JsonProperty("cert_err")]
-        public bool CertificateError { get; set; }
-    }
+	[JsonConverter(typeof(BooleanConverter))]
+	[JsonPropertyName("cert_err")]
+	public bool CertificateError { get; set; }
 }

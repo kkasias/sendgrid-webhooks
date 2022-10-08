@@ -1,44 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
+﻿namespace Sendgrid.Webhooks.Converters;
 
-namespace Sendgrid.Webhooks.Converters
+public abstract class GenericListCreationJsonConverter<T> : JsonConverter<List<T>> where T : class
 {
-    public abstract class GenericListCreationJsonConverter<T> : JsonConverter
-    {
 
-        public override bool CanConvert(Type objectType)
-        {
-            return true;
-        }
+	public override bool CanConvert(Type objectType)
+	{
+		return true;
+	}
+	
+	public override List<T> Read(ref Utf8JsonReader reader, Type objectType, JsonSerializerOptions options)
+	{
+		if (reader.TokenType == JsonTokenType.StartArray)
+		{
+			var list = new List<T>();
+			var jsonObject = JsonDocument.ParseValue(ref reader);
+			list = JsonSerializer.Deserialize<List<T>>(jsonObject);
+			return list; 
+		}
+		
+		T t = JsonSerializer.Deserialize<T>(JsonDocument.ParseValue(ref reader));
+		return new List<T>(new[] {t});
+	}
 
-        public override bool CanRead
-        {
-            get { return true; }
-        }
-
-        public override bool CanWrite
-        {
-            get { return false; }
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
-            JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.StartArray)
-            {
-                return serializer.Deserialize<List<T>>(reader);
-            }
-            else
-            {
-                T t = serializer.Deserialize<T>(reader);
-                return new List<T>(new[] {t});
-            }
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-    }
+	public override void Write(Utf8JsonWriter writer, List<T> value, JsonSerializerOptions options)
+	{
+		throw new NotImplementedException();
+	}
 }

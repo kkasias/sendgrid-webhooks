@@ -1,32 +1,29 @@
-using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
 using Sendgrid.Webhooks.Converters;
 using Sendgrid.Webhooks.Events;
 
-namespace Sendgrid.Webhooks.Service
+namespace Sendgrid.Webhooks.Service;
+
+public class WebhookParser
 {
-    public class WebhookParser
+    private readonly JsonSerializerOptions _options = new();
+
+    public WebhookParser()
     {
-        private readonly JsonConverter[] _converters; 
+        _options.Converters.Add(new WebhookJsonConverter());
+    }
 
-        public WebhookParser()
-        {
-            _converters = new JsonConverter[] { new WebhookJsonConverter() };
+    public WebhookParser(JsonConverter converter)
+    {
+        if (converter == null) {
+            throw new ArgumentNullException(nameof(converter));
         }
+        
+        _options.Converters.Add(converter);
+    }
 
-        public WebhookParser(JsonConverter[] converters)
-        {
-            if (converters == null) {
-                throw new ArgumentNullException("converters");
-            }
-            
-            _converters = converters;
-        }
-
-        public IList<WebhookEventBase> ParseEvents(String json)
-        {
-            return JsonConvert.DeserializeObject<IList<WebhookEventBase>>(json, _converters);
-        }
+    public IList<WebhookEventBase> ParseEvents(String json)
+    {
+        return JsonSerializer.Deserialize<IList<WebhookEventBase>>(json, _options);
     }
 }
+

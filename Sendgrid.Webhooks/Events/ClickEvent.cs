@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿namespace Sendgrid.Webhooks.Events;
 
-namespace Sendgrid.Webhooks.Events
+public class ClickEvent : EngagementEventBase
 {
-    public class ClickEvent : EngagementEventBase
-    {
-        [JsonProperty("url")]
-        public string Url { get; set; }
+	[JsonPropertyName("url")]
+	public string Url { get; set; }
 
-        [JsonProperty("url_offset")]
-        public UrlOffset UrlOffset { get; set; }
-    }
+	[JsonPropertyName("url_offset")]
+	public UrlOffset UrlOffset { get; set; }
+
+	[JsonPropertyName("newsletter")]
+	public Newsletter Newsletter { get; set; }
 }

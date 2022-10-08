@@ -1,33 +1,29 @@
-﻿using System;
-using Newtonsoft.Json;
+﻿namespace Sendgrid.Webhooks.Converters;
 
-namespace Sendgrid.Webhooks.Converters
+public class EpochToDateTimeConverter : System.Text.Json.Serialization.JsonConverter<DateTime>
 {
-    public class EpochToDateTimeConverter : JsonConverter
-    {
-        private static readonly DateTime EpochDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+	private static readonly DateTime EpochDate = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(DateTime);
-        }
+	public override bool CanConvert(Type objectType)
+	{
+		return objectType == typeof(DateTime);
+	}
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            if (value == null)
-                return;
+	public override DateTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+	{
+		var timestamp = reader.GetDouble();
+		return EpochDate.AddSeconds(timestamp);
+	}
 
-            var date = (DateTime) value;
-            var diff = date - EpochDate;
+	public override void Write(Utf8JsonWriter writer, DateTime value, JsonSerializerOptions options)
+	{
+		if (value == default(DateTime))
+			return;
+            
+		var date = (DateTime) value;
+		var diff = date - EpochDate;
 
-            var secondsSinceEpoch = (int) diff.TotalSeconds;
-            serializer.Serialize(writer, secondsSinceEpoch);
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            var timestamp = Convert.ToDouble(reader.Value);
-            return EpochDate.AddSeconds(timestamp);
-        }
-    }
+		var secondsSinceEpoch = (int) diff.TotalSeconds;
+		writer.WriteNumberValue(secondsSinceEpoch);
+	}
 }

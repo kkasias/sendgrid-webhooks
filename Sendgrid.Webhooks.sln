@@ -1,15 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sendgrid.Webhooks", "Sendgrid.Webhooks\Sendgrid.Webhooks.csproj", "{A01761F3-3B82-4097-B32A-AC3F79B739B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sendgrid.Webhooks", "Sendgrid.Webhooks\Sendgrid.Webhooks.csproj", "{A01761F3-3B82-4097-B32A-AC3F79B739B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sendgrid.Webhooks.Tests", "Sendgrid.Webhooks.Tests\Sendgrid.Webhooks.Tests.csproj", "{D8F3B538-B707-4CF9-A78D-FF7D7E5F1C70}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4BA89CBE-4C1B-4C9C-86FD-943C99D37176}"
-	ProjectSection(SolutionItems) = preProject
-	EndProjectSection
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sendgrid.Webhooks.Tests", "Sendgrid.Webhooks.Tests\Sendgrid.Webhooks.Tests.csproj", "{D8F3B538-B707-4CF9-A78D-FF7D7E5F1C70}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,5 +24,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4969709E-477B-49CC-A5F1-B3E39E93156E}
 	EndGlobalSection
 EndGlobal

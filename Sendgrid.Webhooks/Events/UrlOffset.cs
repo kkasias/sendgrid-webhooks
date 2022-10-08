@@ -1,13 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿namespace Sendgrid.Webhooks.Events;
 
-namespace Sendgrid.Webhooks.Events
+public class UrlOffset
 {
-    public class UrlOffset
-    {
-        [JsonProperty("index")]
-        public int Index { get; set; }
+	[JsonPropertyName("index")]
+	public int Index { get; set; }
  
-        [JsonProperty("type")]
-        public string Type { get; set; }
-    }
+	[JsonPropertyName("type")]
+	public string Type { get; set; }
 }
