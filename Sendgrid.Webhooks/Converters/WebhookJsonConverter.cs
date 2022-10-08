@@ -1,6 +1,4 @@
-﻿using System.Collections.Immutable;
-using System.Linq;
-using System.Text.Json.Nodes;
+﻿using System.Linq;
 using Sendgrid.Webhooks.Events;
 
 namespace Sendgrid.Webhooks.Converters;
@@ -37,7 +35,6 @@ public class WebhookJsonConverter : JsonConverter<object>
 		    throw new JsonException("Expected StartArray token");
 
         List<WebhookEventBase> events = new();
-        JsonElement element = new JsonElement();
         
         while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
         {
@@ -70,17 +67,11 @@ public class WebhookJsonConverter : JsonConverter<object>
 
         foreach (var o in dict)
         {
-            if (KnownProperties.Contains(o.Name))
+	        if (KnownProperties.Contains(o.Name))
                 continue;
 
-            if (o.Value.ValueKind is not (JsonValueKind.Object or JsonValueKind.Number))
-            {
-                webhookEvent.UniqueParameters.Add(o.Name, o.Value.GetString());
-            }
-            else
-            {
-                webhookEvent.UniqueParameters.Add(o.Name, o.Value.GetRawText());
-            }
+	        webhookEvent.UniqueParameters.Add(o.Name, o.Value.ValueKind is not (JsonValueKind.Object or JsonValueKind.Number) ? 
+		        o.Value.GetString() : o.Value.GetRawText());
         }
     }
 }
