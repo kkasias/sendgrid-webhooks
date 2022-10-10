@@ -70,8 +70,21 @@ public class WebhookJsonConverter : JsonConverter<object>
 	        if (KnownProperties.Contains(o.Name))
                 continue;
 
-	        webhookEvent.UniqueParameters.Add(o.Name, o.Value.ValueKind is not (JsonValueKind.Object or JsonValueKind.Number) ? 
-		        o.Value.GetString() : o.Value.GetRawText());
+	        string val;
+
+	        switch (o.Value.ValueKind)
+	        {
+                case JsonValueKind.Object:
+                case JsonValueKind.Number:
+                case JsonValueKind.False:
+                case JsonValueKind.True:
+	                val = o.Value.GetRawText();
+                    break;
+                default:
+	                val = o.Value.GetString();
+	                break;
+	        }
+	        webhookEvent.UniqueParameters.Add(o.Name, val);
         }
     }
 }

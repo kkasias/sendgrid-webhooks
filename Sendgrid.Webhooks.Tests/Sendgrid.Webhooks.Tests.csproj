@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sendgrid.Webhooks\Sendgrid.Webhooks.csproj" />
+    <ProjectReference Include="..\Sendgrid.Webhooks\SendGrid.Webhooks.csproj" />
   </ItemGroup>
 
   <ItemGroup>

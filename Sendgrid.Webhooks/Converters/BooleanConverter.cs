@@ -12,6 +12,9 @@ public class BooleanConverter : System.Text.Json.Serialization.JsonConverter<boo
 	    if (reader.TokenType == JsonTokenType.String)
 	    {
 		    return !reader.GetString().Equals("0");
+	    } else if (reader.TokenType is (JsonTokenType.False or JsonTokenType.True))
+	    {
+            return reader.GetBoolean().Equals(true);
 	    }
         return !reader.GetInt32().Equals(0);
     }
